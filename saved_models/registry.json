@@ -1,0 +1,57 @@
+{
+    "Delhi": {
+        "best_model": "SARIMA",
+        "metrics": {
+            "MAE": 307.4854099976888,
+            "RMSE": 596.2296216233735,
+            "MAPE": 704727349616.3564
+        },
+        "model_path": "saved_models/Delhi/sarima_model",
+        "last_date": "2025-04-30",
+        "updated_at": "2026-05-06T15:35:24.616911"
+    },
+    "Karnataka": {
+        "best_model": "Prophet",
+        "metrics": {
+            "MAE": 231.62687437678116,
+            "RMSE": 749.0061300627615,
+            "MAPE": 977017639490.5267
+        },
+        "model_path": "saved_models/Karnataka/prophet_model",
+        "last_date": "2025-04-30",
+        "updated_at": "2026-05-06T14:58:45.568046"
+    },
+    "Maharashtra": {
+        "best_model": "Prophet",
+        "metrics": {
+            "MAE": 129.25630189308964,
+            "RMSE": 150.03228284497544,
+            "MAPE": 0.05715321218122434
+        },
+        "model_path": "saved_models/Maharashtra/prophet_model",
+        "last_date": "2025-04-30",
+        "updated_at": "2026-05-06T15:00:15.684349"
+    },
+    "Tamil Nadu": {
+        "best_model": "SARIMA",
+        "metrics": {
+            "MAE": 256.9324312472424,
+            "RMSE": 545.7414130944198,
+            "MAPE": 650151326345.2151
+        },
+        "model_path": "saved_models/Tamil Nadu/sarima_model",
+        "last_date": "2025-04-30",
+        "updated_at": "2026-05-06T15:01:33.111100"
+    },
+    "Telangana": {
+        "best_model": "Prophet",
+        "metrics": {
+            "MAE": 148.5197179445839,
+            "RMSE": 181.1494879672839,
+            "MAPE": 0.032231665173257755
+        },
+        "model_path": "saved_models/Telangana/prophet_model",
+        "last_date": "2025-04-30",
+        "updated_at": "2026-05-06T15:01:55.602027"
+    }
+}

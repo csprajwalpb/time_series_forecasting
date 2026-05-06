@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+statsmodels
+pmdarima
+prophet
+xgboost
+tensorflow
+joblib
+matplotlib
+openpyxl
+holidays
+python-multipart
+pydantic
