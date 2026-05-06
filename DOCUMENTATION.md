@@ -1,0 +1,153 @@
+# Time Series Forecasting System - Official Documentation
+
+## 1. Executive Summary
+This project is a production-grade, end-to-end Time Series Forecasting REST API. Built on **Python 3.11** and **FastAPI**, it automates the process of ingesting historical sales data across various states, executing a rigorous feature engineering pipeline, training four competitive Machine Learning models (SARIMA, Prophet, XGBoost, LSTM), and autonomously deploying the most accurate model per state to generate 8-week (56-day) future forecasts.
+
+---
+
+## 2. System Architecture
+
+The application is built using a clean, service-oriented architecture:
+
+- **API Layer (`app/api/`)**: Built with FastAPI. It handles asynchronous background dispatching of heavy computational tasks to prevent HTTP request timeouts. 
+- **Service Layer (`app/services/`)**: The core business logic containing preprocessing, feature engineering, the training loop, and evaluation calculations (MAE, RMSE, MAPE).
+- **Model Layer (`app/models/`)**: Abstraction wrappers for each distinct algorithmic approach. Each model exposes `.train()`, `.predict()`, `.save()`, and `.load()` interfaces.
+- **Storage Layer (`saved_models/`)**: A centralized local registry (`registry.json`) that catalogs model paths, metrics, and temporal anchoring (`last_date`).
+
+---
+
+## 3. Machine Learning Pipeline
+
+### 3.1 Data Preprocessing
+- **Dynamic Column Matching**: Automatically identifies columns resembling `date`, `state/region`, and `sales/qty/amount` regardless of the exact naming convention.
+- **Data Imputation**: Ensures a continuous time series using Pandas `date_range`, filling gaps via linear interpolation and forward-filling.
+
+### 3.2 Feature Engineering
+Strict chronological bounds are respected to **prevent data leakage**.
+- **Time/Date Features**: Extracts day of the week, week of the year, month, quarter, and year.
+- **Event Flags**: Embeds native Indian Holidays (via the `holidays` library) and weekend indicators.
+- **Autoregressive Features**: Calculates lags (`lag_1, lag_7, lag_30`) and rolling window statistics (`rolling_mean/std` for 7 and 30 days) using strict `.shift(1)` operations.
+
+### 3.3 Forecasting Models
+All models undergo a strict chronological split, allocating the final **56 days** of the dataset strictly for validation.
+1. **SARIMA**: Utilizes `pmdarima.auto_arima` to navigate the `(p, d, q) x (P, D, Q)` hyperparameter space, optimized for 7-day weekly seasonality.
+2. **Prophet**: Additive regression model handling weekly/yearly trends dynamically augmented by Indian Country Holidays.
+3. **XGBoost**: Employs a **recursive forecasting loop**. To predict step $t+1$, the model dynamically recomputes the lag and rolling window features based on its prediction at step $t$.
+4. **LSTM**: Neural network utilizing a sequential 30-day lookback window. Inputs and predictions are safely bounded using iterative `MinMaxScaler` transformations.
+
+---
+
+## 4. API Reference
+
+### 4.1 Train Models
+**`POST /api/v1/train`**
+Initiates the automated preprocessing, training, and evaluation pipeline in the background.
+- **Request Body**: `multipart/form-data` (Excel file upload).
+- **Response**:
+```json
+{
+  "message": "Training started in background",
+  "task_id": "a1b2c3d4-e5f6-7890-1234-56789abcdef0"
+}
+```
+
+### 4.2 Check Training Status
+**`GET /api/v1/status/{task_id}`**
+Polls the real-time background status of the training pipeline.
+- **Response**:
+```json
+{
+  "task_id": "a1b2c3d4...",
+  "status": "running", 
+  "progress": 45.5,
+  "message": "Trained 2/5 states",
+  "created_at": "...",
+  "updated_at": "..."
+}
+```
+*(Note: `status` transitions from `pending` -> `running` -> `completed` / `failed`)*
+
+### 4.3 Get Model Comparison Metrics
+**`GET /api/v1/metrics`**
+Retrieves the comprehensive scorecard of the best models selected per state.
+- **Response**:
+```json
+{
+  "model_comparison": [
+    {
+      "state": "Karnataka",
+      "best_model": "Prophet",
+      "metrics": {
+        "MAE": 142.5,
+        "RMSE": 180.2,
+        "MAPE": 0.05
+      }
+    }
+  ]
+}
+```
+
+### 4.4 Get Future Forecast
+**`GET /api/v1/forecast/{state}`**
+Dynamically loads the saved best model for the requested state and outputs exactly 56 future dates.
+- **Response**:
+```json
+{
+  "state": "Karnataka",
+  "best_model": "Prophet",
+  "forecast": [
+    {
+      "date": "2026-05-01",
+      "sales": 1542.33
+    },
+    {
+      "date": "2026-05-02",
+      "sales": 1601.12
+    }
+  ]
+}
+```
+
+---
+
+## 5. Visual Outputs & Charts
+Post-training, the visualization engine automatically drops PNG charts into `outputs/plots/`. For each state, you will find:
+1. `[State]_model_comparison.png`: A bar chart comparing the RMSE of all 4 models.
+2. `[State]_actual_vs_pred.png`: An overlay graph showing how the winning model tracked the actual historical data during the 56-day validation split.
+3. `[State]_forecast.png`: The visual mapping of the final 8-week future projection generated by the API.
+
+---
+
+## 6. Setup & Execution Guide
+
+### Prerequisites
+- Python 3.11+
+- Virtual Environment (`venv`)
+
+### Installation
+1. Navigate to the directory:
+   ```bash
+   cd time_series_forecasting
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   # Windows:
+   .\venv\Scripts\activate
+   # Mac/Linux:
+   source venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Running the Server
+```bash
+python run.py
+```
+The server will boot up at `http://0.0.0.0:8000`.
+
+### Interactive Testing
+To easily upload files and test API endpoints without code, visit the auto-generated Swagger Dashboard:
+👉 **http://localhost:8000/docs**

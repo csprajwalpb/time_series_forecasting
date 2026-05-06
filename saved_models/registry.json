@@ -1,14 +1,14 @@
 {
     "Delhi": {
-        "best_model": "SARIMA",
+        "best_model": "Prophet",
         "metrics": {
-            "MAE": 307.4854099976888,
-            "RMSE": 596.2296216233735,
-            "MAPE": 704727349616.3564
+            "MAE": 253.74067658987693,
+            "RMSE": 309.951077229199,
+            "MAPE": 0.059502688178203623
         },
-        "model_path": "saved_models/Delhi/sarima_model",
-        "last_date": "2025-04-30",
-        "updated_at": "2026-05-06T15:35:24.616911"
+        "model_path": "saved_models/Delhi/prophet_model",
+        "last_date": "2025-12-31",
+        "updated_at": "2026-05-06T16:16:11.265970"
     },
     "Karnataka": {
         "best_model": "Prophet",
