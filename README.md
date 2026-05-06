@@ -64,8 +64,6 @@ Returns the comparative performance and the automatically selected best model pe
 }
 ```
 
-## Screenshots
-*(Insert screenshots of the `/docs` UI and the generated plots from `outputs/plots/` here)*
 
 ## Future Improvements
 - **Cloud Database Integration**: Move from a local `registry.json` to PostgreSQL/MongoDB.
